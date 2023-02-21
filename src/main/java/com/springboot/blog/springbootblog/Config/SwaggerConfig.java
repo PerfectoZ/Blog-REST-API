@@ -31,7 +31,7 @@ public class SwaggerConfig {
                         .description("Spring Boot Blog REST API Documentation")
                         .version("v1.0")
                         .license(new License().name("API License").url("https://github.com/"))
-                        .contact(new Contact().name("My Name").url("https://github.com/").email("email@github.io/")))
+                        .contact(new Contact().name("PerfectoZ").url("https://github.com/PerfectoZ").email("mandeepsinghtaneja_it20b10_47@dtu.ac.in/")))
                 .externalDocs(new ExternalDocumentation()
                         .description("Spring Boot Blog App Documentation")
                         .url("https://github.com/docs"))
