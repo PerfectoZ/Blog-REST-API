@@ -9,6 +9,7 @@ import com.springboot.blog.springbootblog.Repository.CommentRepository;
 import com.springboot.blog.springbootblog.Repository.PostRepository;
 import com.springboot.blog.springbootblog.Service.CommentService;
 import lombok.NoArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,9 +28,11 @@ import java.util.stream.Collectors;
 public class CommentServiceImpl implements CommentService {
     private CommentRepository commentRepository ;
     private PostRepository postRepository;
-    public CommentServiceImpl(CommentRepository commentRepository, PostRepository postRepository) {
+    private ModelMapper mapper;
+    public CommentServiceImpl(CommentRepository commentRepository, PostRepository postRepository, ModelMapper mapper) {
         this.commentRepository = commentRepository;
         this.postRepository = postRepository;
+        this.mapper = mapper;
     }
 
     @Override
@@ -93,20 +96,12 @@ public class CommentServiceImpl implements CommentService {
     }
 
     private CommentDto mapToDTO(Comment comment) {
-        CommentDto commentDto = new CommentDto();
-        commentDto.setBody(comment.getBody());
-        commentDto.setName(comment.getName());
-        commentDto.setEmail(comment.getEmail());
-        commentDto.setId(comment.getId());
+        CommentDto commentDto = mapper.map(comment, CommentDto.class);
         return commentDto;
     }
 
     private Comment mapToEntity(CommentDto commentDto) {
-        Comment comment = new Comment();
-        comment.setBody(commentDto.getBody());
-        comment.setEmail(commentDto.getEmail());
-        comment.setId(commentDto.getId());
-        comment.setName(commentDto.getName());
+        Comment comment = mapper.map(commentDto, Comment.class);
         return comment;
     }
 }
