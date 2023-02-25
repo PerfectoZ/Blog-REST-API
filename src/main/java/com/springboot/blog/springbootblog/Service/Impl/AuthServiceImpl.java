@@ -46,7 +46,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String signup(@RequestBody RegisterDto registerDto) {
+    public String signup(RegisterDto registerDto) {
         if(userRepository.existsByEmail(registerDto.getEmail()))
             throw new BlogAPIException(HttpStatus.BAD_REQUEST, "Email already in use");
 
