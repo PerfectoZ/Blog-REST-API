@@ -12,10 +12,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -64,6 +64,19 @@ public class AuthServiceImpl implements AuthService {
         user.setRoles(roles);
         userRepository.save(user);
         return "User Registered Successfully";
+    }
+
+    @Override
+    public String who() {
+        User user = GetUser();
+        if(user == null) return "Hello Anonymous";
+        return "Hello "+user.getUsername();
+    }
+
+    private User GetUser() {
+        SecurityContext context = SecurityContextHolder.getContext();
+        Authentication auth = context.getAuthentication();
+        return userRepository.findUserByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
     }
 
 }

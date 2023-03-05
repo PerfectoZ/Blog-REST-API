@@ -1,15 +1,22 @@
 package com.springboot.blog.springbootblog.Service.Impl;
 
 import com.springboot.blog.springbootblog.Entity.Post;
+import com.springboot.blog.springbootblog.Entity.User;
+import com.springboot.blog.springbootblog.Exceptions.BlogAPIException;
 import com.springboot.blog.springbootblog.Exceptions.ResourceNotFoundException;
 import com.springboot.blog.springbootblog.Payload.PostDto;
 import com.springboot.blog.springbootblog.Payload.PostResponse;
 import com.springboot.blog.springbootblog.Repository.PostRepository;
+import com.springboot.blog.springbootblog.Repository.UserRepository;
 import com.springboot.blog.springbootblog.Service.PostService;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import org.springframework.data.domain.Pageable;
@@ -20,20 +27,23 @@ import java.util.stream.Collectors;
 public class PostServiceImpl implements PostService {
     private PostRepository postRepository;
     private ModelMapper mapper;
+    private UserRepository userRepository;
 
-    public PostServiceImpl(PostRepository postRepository, ModelMapper mapper) {
+    public PostServiceImpl(PostRepository postRepository, ModelMapper mapper, UserRepository userRepository) {
         this.mapper = mapper;
         this.postRepository = postRepository;
+        this.userRepository = userRepository;
     }
     @Override
     public PostDto createPost(PostDto postDto) {
         // convert DTO to Entity
         Post post = mapToEntity(postDto);
+        User creator = GetUser();
+        post.setUser(creator);
         Post newPost = postRepository.save(post);
 
         // convert entity to dto
         PostDto postResponse = mapToDTO(newPost);
-
         return postResponse;
     }
 
@@ -68,6 +78,12 @@ public class PostServiceImpl implements PostService {
     public PostDto updatePost(PostDto postDto, Long id) {
         Post post = postRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Post", "id", id));
 
+        User creator = post.getUser();
+        User loggedin = GetUser();
+
+        if(creator.getId()!=loggedin.getId())
+            throw new BlogAPIException("Not Allowed to Edit Other's Post", HttpStatus.UNAUTHORIZED, "");
+
         post.setTitle(postDto.getTitle());
         post.setContent(postDto.getContent());
         post.setDescription(postDto.getDescription());
@@ -79,6 +95,11 @@ public class PostServiceImpl implements PostService {
     @Override
     public void deletePostById(Long id) {
         Post post = postRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Post","id",id));
+        User creator = post.getUser();
+        User loggedin = GetUser();
+
+        if(creator.getId()!=loggedin.getId())
+            throw new BlogAPIException("Not Allowed to Delete Other's Post", HttpStatus.UNAUTHORIZED, "");
         postRepository.delete(post);
     }
 
@@ -101,6 +122,12 @@ public class PostServiceImpl implements PostService {
         post.setDescription(postDto.getDescription());
         post.setContent(postDto.getContent());*/
         return post;
+    }
+
+    private User GetUser() {
+        SecurityContext context = SecurityContextHolder.getContext();
+        Authentication auth = context.getAuthentication();
+        return userRepository.findUserByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
     }
 
 }

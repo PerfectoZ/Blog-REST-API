@@ -5,10 +5,7 @@ import com.springboot.blog.springbootblog.Payload.RegisterDto;
 import com.springboot.blog.springbootblog.Service.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -29,5 +26,10 @@ public class AuthController {
     public ResponseEntity<String> register(@RequestBody RegisterDto registerDto) {
         String response = authService.signup(registerDto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @GetMapping(value = {"/who", "/me"})
+    public ResponseEntity<String> who() {
+        return new ResponseEntity<>(authService.who(), HttpStatus.OK);
     }
 }
