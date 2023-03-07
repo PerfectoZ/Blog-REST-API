@@ -7,7 +7,9 @@ import com.springboot.blog.springbootblog.Payload.LoginDto;
 import com.springboot.blog.springbootblog.Payload.RegisterDto;
 import com.springboot.blog.springbootblog.Repository.RoleRepository;
 import com.springboot.blog.springbootblog.Repository.UserRepository;
+import com.springboot.blog.springbootblog.Security.JwtTokenProvider;
 import com.springboot.blog.springbootblog.Service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,15 +28,18 @@ public class AuthServiceImpl implements AuthService {
     private UserRepository userRepository;
     private RoleRepository roleRepository;
     private PasswordEncoder passwordEncoder;
+    private JwtTokenProvider jwtTokenProvider;
 
     public AuthServiceImpl(AuthenticationManager authenticationManager,
                            UserRepository userRepository,
                            RoleRepository roleRepository,
-                           PasswordEncoder passwordEncoder) {
+                           PasswordEncoder passwordEncoder,
+                           JwtTokenProvider jwtTokenProvider) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @Override
@@ -42,7 +47,8 @@ public class AuthServiceImpl implements AuthService {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 loginDto.getUsernameOrEmail(), loginDto.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        return "User Logged-in Successfully";
+        String token = jwtTokenProvider.generateToken(authentication);
+        return token;
     }
 
     @Override
@@ -78,5 +84,4 @@ public class AuthServiceImpl implements AuthService {
         Authentication auth = context.getAuthentication();
         return userRepository.findUserByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
     }
-
 }

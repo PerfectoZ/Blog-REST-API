@@ -127,6 +127,7 @@ public class PostServiceImpl implements PostService {
     private User GetUser() {
         SecurityContext context = SecurityContextHolder.getContext();
         Authentication auth = context.getAuthentication();
+        System.out.println(auth.getName());
         return userRepository.findUserByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
     }
 
