@@ -37,7 +37,7 @@ public class SwaggerConfig {
                         .url("https://github.com/docs"))
                 .components(new Components()
                         .addSecuritySchemes("bearer-key",
-                                new SecurityScheme().type(Type.HTTP).scheme("bearer").bearerFormat("JWT")))
+                               new SecurityScheme().type(Type.HTTP).scheme("bearer").bearerFormat("JWT")))
                 .addSecurityItem(
                         new SecurityRequirement().addList("bearer-jwt", Arrays.asList("read", "write"))
                                 .addList("bearer-key", Collections.emptyList())

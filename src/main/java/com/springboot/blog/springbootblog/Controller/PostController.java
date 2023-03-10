@@ -58,4 +58,15 @@ public class PostController {
         return new ResponseEntity<>("Post Deleted Successfully", HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
+    @GetMapping("/createdBy/{username}")
+    public List<PostDto> getPostByUser(@PathVariable String username) {
+        return postService.getPostByUsername(username);
+    }
+
+    @GetMapping("/category/{id}")
+    public ResponseEntity<List<PostDto>> getPostByCategory(@PathVariable Long id) {
+        return ResponseEntity.ok(postService.getPostsByCategory(id));
+    }
+
 }
