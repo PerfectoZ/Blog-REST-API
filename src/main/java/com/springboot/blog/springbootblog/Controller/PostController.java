@@ -68,5 +68,4 @@ public class PostController {
     public ResponseEntity<List<PostDto>> getPostByCategory(@PathVariable Long id) {
         return ResponseEntity.ok(postService.getPostsByCategory(id));
     }
-
 }
